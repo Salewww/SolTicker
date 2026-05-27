@@ -1,0 +1,1 @@
+"""SolTicker API package."""

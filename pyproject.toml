@@ -1,0 +1,8 @@
+[project]
+name = "solticker"
+version = "0.1.0"
+description = "Cross-platform pricing intelligence for TikTok Shop sellers"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
