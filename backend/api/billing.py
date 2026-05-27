@@ -17,7 +17,7 @@ router = APIRouter()
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC", "")  # $29/mo
-STRIPE_PRICE_PRO = os.getenv("STRICE_PRICE_PRO", "")  # $59/mo
+STRIPE_PRICE_PRO = os.getenv("STRIPE_PRICE_PRO", "")  # $59/mo
 
 # User tier management
 _USER_TIERS: dict[str, str] = {}  # email -> tier

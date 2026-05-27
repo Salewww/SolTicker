@@ -16,4 +16,4 @@ python-dotenv==1.0.*
 rapidfuzz==3.9.*
 apscheduler==3.10.*
 structlog==24.4.*
-supabase==2.9.*
+supabase==2.6.0

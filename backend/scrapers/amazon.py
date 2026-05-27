@@ -70,6 +70,7 @@ class AmazonProduct:
     review_count: Optional[int] = None
     url: str = ""
     image_url: str = ""
+    platform: str = "amazon"
 
     def to_dict(self) -> dict:
         return {
@@ -112,10 +113,10 @@ class AmazonScraper:
 
     @staticmethod
     def _parse_price(text: str) -> Optional[float]:
-        """Parse price string like '$29.99' to float."""
+        """Parse price string like '$29.99' or 'EUR 10.31' to float."""
         if not text:
             return None
-        cleaned = re.sub(r"[^\d.]", "", text.strip())
+        cleaned = re.sub(r"[^\d.]", "", text.strip().replace(",", ""))
         try:
             return float(cleaned) if cleaned else None
         except ValueError:
@@ -207,12 +208,12 @@ class AmazonScraper:
         # Extract price
         price = None
         original_price = None
-        price_match = re.search(r'class="[^"]*p13n-sc-price[^"]*"[^>]*>\$?([0-9,.]+)', html)
+        price_match = re.search(r'class="[^"]*p13n-sc-price[^"]*"[^>]*>(?:EUR|GBP|USD|CAD|AUD|\$)?\s?([0-9,.]+)', html)
         if price_match:
             price = self._parse_price(price_match.group(1))
 
         # Check for strikethrough (original) price
-        orig_match = re.search(r'class="[^"]*p13n-sc-price[^"]*a-text-strike[^"]*"[^>]*>\$?([0-9,.]+)', html)
+        orig_match = re.search(r'class="[^"]*p13n-sc-price[^"]*a-text-strike[^"]*"[^>]*>(?:EUR|GBP|USD|CAD|AUD|\$)?\s?([0-9,.]+)', html)
         if orig_match:
             original_price = price
             price = self._parse_price(orig_match.group(1))
@@ -265,40 +266,72 @@ class AmazonScraper:
             return []
 
         products = []
-        # Parse search results
-        items = re.findall(
-            r'<div[^>]*data-asin="([A-Z0-9]{10})"[^>]*data-component-type="s-search-result"[^>]*>(.*?)</div>\s*</div>\s*</div>',
-            html,
-            re.DOTALL,
-        )
+        # Split by search result markers to get individual result blocks
+        parts = re.split(r'(?=<div[^>]*data-component-type="s-search-result")', html)
+        search_results = [p for p in parts if 'data-asin="' in p[:500]]
 
-        for asin, item_html in items[:max_results]:
+        for block in search_results[:max_results]:
+            # ASIN
+            asin_m = re.search(r'data-asin="([A-Z0-9]{10})"', block)
+            if not asin_m:
+                continue
+            asin = asin_m.group(1)
+
+            # Title
             title = ""
-            title_match = re.search(
-                r'<span[^>]*class="[^"]*a-text-normal[^"]*"[^>]*>([^<]+)',
-                item_html,
-            )
-            if title_match:
-                title = unescape(title_match.group(1).strip())
+            for pat in [
+                r'<h2[^>]*>.*?<span[^>]*>([^<]+)</span>',
+                r'class="[^"]*a-text-normal[^"]*"[^>]*>([^<]+)',
+            ]:
+                m = re.search(pat, block, re.DOTALL)
+                if m:
+                    title = unescape(m.group(1).strip())
+                    if len(title) > 3:
+                        break
 
+            if not title:
+                continue
+
+            # Price
             price = None
-            price_match = re.search(
-                r'class="[^"]*a-price-whole[^"]*"[^>]*>([0-9,]+)', item_html
-            )
-            if price_match:
-                price = self._parse_price(price_match.group(1))
+            pm = re.search(r'class="a-price-whole"[^>]*>([0-9,]+)', block)
+            if pm:
+                price = self._parse_price(pm.group(1))
+
+            # Rating
+            rating = None
+            rm = re.search(r'class="[^"]*a-icon-alt[^"]*"[^>]*>([0-9.]+) out of 5', block)
+            if rm:
+                rating = float(rm.group(1))
+
+            # Review count
+            review_count = None
+            rvm = re.search(r'<span[^>]*aria-label="([0-9,]+) ratings?"', block)
+            if not rvm:
+                rvm = re.search(r'\(([0-9,]+)\)', block)
+            if rvm:
+                review_count = int(rvm.group(1).replace(",", ""))
+
+            # Image
+            image_url = ""
+            im = re.search(r'<img[^>]*src="([^"]*\.(?:jpg|jpeg|png|webp)[^"]*)"', block, re.IGNORECASE)
+            if im:
+                image_url = im.group(1)
 
             url = f"{self.BASE_URL}/dp/{asin}"
 
-            if title:
-                products.append(AmazonProduct(
-                    asin=asin,
-                    title=title,
-                    price=price,
-                    url=url,
-                    platform="amazon",
-                ))
+            products.append(AmazonProduct(
+                asin=asin,
+                title=title,
+                price=price,
+                rating=rating,
+                review_count=review_count,
+                url=url,
+                image_url=image_url,
+                platform="amazon",
+            ))
 
+        logger.info(f"Amazon/search: found {len(products)} products for '{query}'")
         return products
 
     @property
