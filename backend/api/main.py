@@ -11,7 +11,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel
 
 from scrapers import AmazonScraper, ShopifyScraper, TikTokShopScraper
@@ -197,3 +197,16 @@ async def scrape_shopify_store(
 
 # Re-export for convenience
 from scrapers.amazon import AMAZON_BS_CATEGORIES
+
+
+# ── Landing Page ──
+import pathlib
+
+_LANDING_HTML = pathlib.Path(__file__).resolve().parent.parent.parent / "infra" / "landing.html"
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def landing_page():
+    """Serve the landing page."""
+    if _LANDING_HTML.exists():
+        return HTMLResponse(content=_LANDING_HTML.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>SolTicker</h1><p>API is running. Docs at <a href='/docs'>/docs</a></p>")
