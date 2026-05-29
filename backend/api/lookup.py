@@ -22,7 +22,7 @@ cache = Cache(default_ttl=300)
 @router.get("/search")
 async def search_products(
     q: str = Query(..., min_length=2, max_length=200),
-    platform: str = Query("amazon", regex="^(amazon|shopify|tiktok|all)$"),
+    platform: str = Query("amazon", pattern="^(amazon|shopify|tiktok|all)$"),
     limit: int = Query(10, ge=1, le=50),
     shopify_store: Optional[str] = None,
 ):

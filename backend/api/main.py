@@ -5,9 +5,15 @@ SolTicker — Main FastAPI application.
 from __future__ import annotations
 
 import os
+import sys
 import logging
 from contextlib import asynccontextmanager
 from typing import Optional
+
+# Ensure backend/ is in Python path for imports
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
