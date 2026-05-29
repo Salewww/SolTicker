@@ -23,9 +23,15 @@ from pydantic import BaseModel
 from scrapers import AmazonScraper, ShopifyScraper, TikTokShopScraper
 from utils.matching import match_products
 from utils.cache import Cache
-from api import auth, billing, lookup
 
 logger = logging.getLogger(__name__)
+
+# Import API routers with error handling
+try:
+    from api import auth, billing, lookup
+except ImportError as e:
+    logger.error(f"Failed to import API routers: {e}")
+    auth = billing = lookup = None
 
 # Global cache instance
 cache = Cache(default_ttl=300)
@@ -61,9 +67,12 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(billing.router, prefix="/api/billing", tags=["billing"])
-app.include_router(lookup.router, prefix="/api", tags=["lookup"])
+if auth:
+    app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+if billing:
+    app.include_router(billing.router, prefix="/api/billing", tags=["billing"])
+if lookup:
+    app.include_router(lookup.router, prefix="/api", tags=["lookup"])
 
 
 @app.get("/health")
