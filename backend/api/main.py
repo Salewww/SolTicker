@@ -18,8 +18,7 @@ if BACKEND_DIR not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse, HTMLResponse, Response
 from pydantic import BaseModel
 
 from scrapers import AmazonScraper, ShopifyScraper, TikTokShopScraper
@@ -216,45 +215,76 @@ async def scrape_shopify_store(
 from scrapers.amazon import AMAZON_BS_CATEGORIES
 
 
-# ── Static Files ──
-_STATIC_DIR = pathlib.Path(__file__).resolve().parent.parent.parent / "static"
+# ── Static Files (embedded for Vercel serverless) ──
+import base64 as _b64_mod
+try:
+    from static_data import OG_IMAGE_B64, FAVICON_B64
+except ImportError:
+    OG_IMAGE_B64 = FAVICON_B64 = ""
 
 @app.get("/og-image.png", include_in_schema=False)
 async def og_image():
-    p = _STATIC_DIR / "og-image.png"
-    if p.exists():
-        return FileResponse(str(p), media_type="image/png")
+    if OG_IMAGE_B64:
+        return Response(content=_b64_mod.b64decode(OG_IMAGE_B64), media_type="image/png")
     raise HTTPException(status_code=404)
 
 @app.get("/favicon-32x32.png", include_in_schema=False)
 async def favicon():
-    p = _STATIC_DIR / "favicon-32x32.png"
-    if p.exists():
-        return FileResponse(str(p), media_type="image/png")
+    if FAVICON_B64:
+        return Response(content=_b64_mod.b64decode(FAVICON_B64), media_type="image/png")
     raise HTTPException(status_code=404)
 
 @app.get("/apple-touch-icon.png", include_in_schema=False)
 async def apple_touch_icon():
-    p = _STATIC_DIR / "apple-touch-icon.png"
-    if p.exists():
-        return FileResponse(str(p), media_type="image/png")
+    if OG_IMAGE_B64:
+        return Response(content=_b64_mod.b64decode(OG_IMAGE_B64), media_type="image/png")
     raise HTTPException(status_code=404)
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon_ico():
-    p = _STATIC_DIR / "favicon.ico"
-    if p.exists():
-        return FileResponse(str(p), media_type="image/x-icon")
+    if FAVICON_B64:
+        return Response(content=_b64_mod.b64decode(FAVICON_B64), media_type="image/png")
     raise HTTPException(status_code=404)
 
 
 # ── Landing Page ──
 
-_LANDING_HTML = pathlib.Path(__file__).resolve().parent.parent.parent / "infra" / "landing.html"
+# Path to landing.html — works both locally and on Vercel serverless
+import os as _os
+_LANDING_DIR = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+# In Vercel, __file__ is /var/task/backend/api/main.py, parent chain goes up to /var/task/
+# Look for infra/landing.html in project root
+_LANDING_CANDIDATES = [
+    _os.path.join(_os.path.dirname(_LANDING_DIR), "infra", "landing.html"),
+    "/var/task/infra/landing.html",
+]
+
+def _get_landing_html() -> str:
+    for candidate in _LANDING_CANDIDATES:
+        if _os.path.exists(candidate):
+            return open(candidate).read()
+    return "<h1>SolTicker</h1><p>API running. <a href='/docs'>Docs</a></p>"
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def landing_page():
-    """Serve the landing page."""
-    if _LANDING_HTML.exists():
-        return HTMLResponse(content=_LANDING_HTML.read_text(encoding="utf-8"))
-    return HTMLResponse(content="<h1>SolTicker</h1><p>API is running. Docs at <a href='/docs'>/docs</a></p>")
+    """Serve landing page with SEO meta tags."""
+    html_content = _get_landing_html()
+    # Inject OG tags if missing
+    if "og:title" not in html_content:
+        og_tags = '''  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://solticker.vercel.app/">
+  <meta property="og:title" content="SolTicker — Cross-Platform Price Intelligence for TikTok Shop">
+  <meta property="og:description" content="Stop guessing prices on TikTok Shop. See competitor pricing across Amazon, Shopify, and TikTok in real time. Free Chrome extension.">
+  <meta property="og:image" content="https://solticker.vercel.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SolTicker — Cross-Platform Price Intelligence">
+  <meta property="og:site_name" content="SolTicker">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SolTicker — Cross-Platform Price Intelligence for TikTok Shop">
+  <meta name="twitter:description" content="Stop guessing prices on TikTok Shop. See competitor pricing across Amazon, Shopify, and TikTok in real time. Free Chrome extension.">
+  <meta name="twitter:image" content="https://solticker.vercel.app/og-image.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://solticker.app/favicon-32x32.png">
+'''
+        html_content = html_content.replace("  <style>", og_tags + "  <style>")
+    return HTMLResponse(content=html_content)
