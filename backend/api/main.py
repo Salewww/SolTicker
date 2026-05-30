@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import sys
 import logging
+import pathlib
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -17,7 +18,8 @@ if BACKEND_DIR not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from scrapers import AmazonScraper, ShopifyScraper, TikTokShopScraper
@@ -214,8 +216,39 @@ async def scrape_shopify_store(
 from scrapers.amazon import AMAZON_BS_CATEGORIES
 
 
+# ── Static Files ──
+_STATIC_DIR = pathlib.Path(__file__).resolve().parent.parent.parent / "static"
+
+@app.get("/og-image.png", include_in_schema=False)
+async def og_image():
+    p = _STATIC_DIR / "og-image.png"
+    if p.exists():
+        return FileResponse(str(p), media_type="image/png")
+    raise HTTPException(status_code=404)
+
+@app.get("/favicon-32x32.png", include_in_schema=False)
+async def favicon():
+    p = _STATIC_DIR / "favicon-32x32.png"
+    if p.exists():
+        return FileResponse(str(p), media_type="image/png")
+    raise HTTPException(status_code=404)
+
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+async def apple_touch_icon():
+    p = _STATIC_DIR / "apple-touch-icon.png"
+    if p.exists():
+        return FileResponse(str(p), media_type="image/png")
+    raise HTTPException(status_code=404)
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon_ico():
+    p = _STATIC_DIR / "favicon.ico"
+    if p.exists():
+        return FileResponse(str(p), media_type="image/x-icon")
+    raise HTTPException(status_code=404)
+
+
 # ── Landing Page ──
-import pathlib
 
 _LANDING_HTML = pathlib.Path(__file__).resolve().parent.parent.parent / "infra" / "landing.html"
 

@@ -5,18 +5,9 @@
     {
       "src": "backend/api/main.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "static/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/favicon.ico", "dest": "/static/favicon.ico" },
-    { "src": "/favicon-32x32.png", "dest": "/static/favicon-32x32.png" },
-    { "src": "/apple-touch-icon.png", "dest": "/static/apple-touch-icon.png" },
-    { "src": "/og-image.png", "dest": "/static/og-image.png" },
     { "src": "/(.*)", "dest": "backend/api/main.py" }
   ]
 }
