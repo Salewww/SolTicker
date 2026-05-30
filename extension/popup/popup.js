@@ -47,7 +47,7 @@ function updateUI() {
   // Tier badge
   const badge = document.getElementById('tierBadge');
   badge.textContent = userTier.toUpperCase();
-  badge.className = `badge tier-${badge}`;
+  badge.className = `badge tier-${userTier}`;
   
   // Lookup count
   if (userTier === 'free') {
@@ -141,7 +141,7 @@ async function searchProducts() {
   document.getElementById('results').innerHTML = '';
   
   try {
-    const resp = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&platform=amazon&limit=10`);
+    const resp = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&platform=all&limit=10`);
     const data = await resp.json();
     
     // Increment lookup counter
