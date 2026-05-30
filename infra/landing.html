@@ -4,8 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SolTicker — Cross-Platform Price Intelligence for TikTok Shop</title>
-  <meta name="description" content="See what products really sell for across TikTok Shop, Amazon, and Shopify. Free Chrome extension. Stop guessing, start pricing smart.">
+  <meta name="description" content="Stop guessing prices on TikTok Shop. See competitor pricing across Amazon, Shopify, and TikTok in real time. Free Chrome extension.">
   <meta name="theme-color" content="#000000">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://solticker.vercel.app/">
+  <meta property="og:title" content="SolTicker — Cross-Platform Price Intelligence for TikTok Shop">
+  <meta property="og:description" content="Stop guessing prices on TikTok Shop. See competitor pricing across Amazon, Shopify, and TikTok in real time. Free Chrome extension.">
+  <meta property="og:image" content="https://solticker.vercel.app/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SolTicker dashboard showing cross-platform price comparison">
+  <meta property="og:site_name" content="SolTicker">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://solticker.vercel.app/">
+  <meta name="twitter:title" content="SolTicker — Cross-Platform Price Intelligence for TikTok Shop">
+  <meta name="twitter:description" content="Stop guessing prices on TikTok Shop. See competitor pricing across Amazon, Shopify, and TikTok in real time. Free Chrome extension.">
+  <meta name="twitter:image" content="https://solticker.vercel.app/og-image.png">
+  <meta name="twitter:image:alt" content="SolTicker dashboard showing cross-platform price comparison">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://solticker.vercel.app/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://solticker.vercel.app/apple-touch-icon.png">
+
   <style>
     /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
        SolTicker — Apple-style Landing Page
@@ -135,7 +160,7 @@
 
     .hero .hero-content {
       max-width: 980px;
-      padding: 140px 24px 60px;
+      padding: 140px 24px 40px;
     }
 
     .hero .eyebrow {
@@ -143,16 +168,23 @@
       font-weight: 600;
       letter-spacing: -0.224px;
       color: var(--accent-dark-link);
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .hero h1 {
-      font-size: 56px;
+      font-size: 64px;
       font-weight: 600;
-      line-height: 1.07;
-      letter-spacing: -0.28px;
+      line-height: 1.05;
+      letter-spacing: -1px;
       color: #fff;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, #2997ff 0%, #0071e3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero h1 span {
@@ -166,13 +198,13 @@
     }
 
     .hero p {
-      font-size: 17px;
+      font-size: 19px;
       font-weight: 400;
       line-height: 1.47;
       letter-spacing: -0.374px;
       color: rgba(255,255,255,0.7);
-      max-width: 560px;
-      margin: 0 auto 32px;
+      max-width: 620px;
+      margin: 0 auto 36px;
     }
 
     .hero .actions {
@@ -181,26 +213,30 @@
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
+      margin-bottom: 36px;
     }
 
     .hero .cta-primary {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 17px;
-      font-weight: 400;
+      gap: 8px;
+      font-size: 19px;
+      font-weight: 500;
       color: #fff;
-      background: var(--accent);
-      padding: 12px 24px;
+      background: #0071e3;
+      padding: 16px 32px;
       border-radius: 980px;
       letter-spacing: -0.374px;
-      transition: background 0.2s;
+      transition: all 0.25s ease;
       text-decoration: none;
+      box-shadow: 0 0 0 0 rgba(0, 113, 227, 0);
     }
     .hero .cta-primary:hover {
-      background: var(--accent-hover);
+      background: #0077ed;
       text-decoration: none;
       color: #fff;
+      transform: scale(1.03);
+      box-shadow: 0 0 30px 5px rgba(0, 113, 227, 0.3);
     }
 
     .hero .cta-secondary {
@@ -220,6 +256,36 @@
       opacity: 0.8;
       text-decoration: underline;
       color: var(--accent-dark-link);
+    }
+
+    /* Social proof stats under CTA */
+    .hero .social-proof {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .hero .social-proof .stat {
+      text-align: center;
+    }
+
+    .hero .social-proof .stat-value {
+      font-size: 21px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .hero .social-proof .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: -0.12px;
+      margin-top: 2px;
     }
 
     .hero .hero-visual {
@@ -807,15 +873,29 @@
         <div class="eyebrow">Chrome Extension — Free</div>
         <h1>
           Stop guessing prices.
-          <span>Start pricing smart.</span>
+          <span><span class="highlight">Start pricing for profit.</span></span>
         </h1>
-        <p>See what products really sell for across TikTok Shop, Amazon, and Shopify. The extension that gives you Jungle Scout-level intel on every listing.</p>
+        <p>See what products really sell for across TikTok Shop, Amazon, and Shopify — instantly, in your browser. The price intelligence tool built for TikTok sellers.</p>
         <div class="actions">
           <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener" class="cta-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Add to Chrome — Free
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+            Install Free Extension
           </a>
-          <a href="#how-it-works" class="cta-secondary">See how it works ›</a>
+          <a href="#how-it-works" class="cta-secondary">How it works ›</a>
+        </div>
+        <div class="social-proof" aria-label="Product statistics">
+          <div class="stat">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Platforms Tracked</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">5M+</div>
+            <div class="stat-label">Products Indexed</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Price Monitoring</div>
+          </div>
         </div>
       </div>
       <div class="hero-visual" aria-hidden="true">
@@ -1016,7 +1096,7 @@
 
     <!-- ═══ Final CTA ═══ -->
     <section class="final-cta" id="cta" aria-label="Get started">
-      <h2>Ready to price smarter?</h2>
+      <h2>Ready to price <span style="color: #0071e3;">smarter</span>?</h2>
       <p>Join thousands of TikTok Shop sellers who stopped guessing and started profiting.</p>
       <div class="actions">
         <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener" class="cta-primary">
